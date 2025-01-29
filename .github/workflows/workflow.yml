@@ -27,10 +27,14 @@ jobs:
         run: |
           pip install yt-dlp
 
-      # 動画をダウンロード
+      # GitHub SecretsからYouTubeのCookieを保存
+      - name: Save YouTube cookies
+        run: echo "${{ secrets.YOUTUBE_COOKIES }}" > cookies.txt
+
+      # YouTubeから動画をダウンロード
       - name: Download video
         run: |
-          yt-dlp -o "downloaded_video.%(ext)s" ${{ github.event.inputs.video_url }}
+          yt-dlp --cookies cookies.txt -o "downloaded_video.%(ext)s" ${{ github.event.inputs.video_url }}
 
       # ダウンロードしたファイルをoutputフォルダに移動
       - name: Save downloaded file
