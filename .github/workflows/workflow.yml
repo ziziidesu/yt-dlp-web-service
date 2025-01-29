@@ -12,29 +12,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # リポジトリのチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Python環境をセットアップ
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
+      # yt-dlpをインストール
       - name: Install yt-dlp
         run: |
           pip install yt-dlp
 
+      # 動画をダウンロード
       - name: Download video
         run: |
-          python main.py ${{ github.event.inputs.video_url }}
+          yt-dlp -o "downloaded_video.%(ext)s" ${{ github.event.inputs.video_url }}
 
-      # ここからアーティファクト保存のステップ
+      # ダウンロードしたファイルをoutputフォルダに移動
       - name: Save downloaded file
         run: |
           mkdir -p output
-          mv *.mp4 output/
-        shell: bash
+          mv downloaded_video.* output/
+        shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
 
+      # アーティファクトとしてアップロード
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
